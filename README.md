@@ -53,11 +53,11 @@ GET /todos/:id - fetch todo by ID
 Note: DummyJSON is a read-only API. Actions like add/edit will simulate but not persist.
 
 6. **Screenshot of the Todo App** <br>
-![Desktop View](./screenshots/desktop.jpg)
-![Desktop View](./screenshots/desktop%20view%202.png)
-![Mobile View](./screenshots/mobile.png)
-![Mobile View](./screenshots/mobile%20view%202.png)
+![Desktop View](screenshots/desktop.jpg)
+![Desktop View](screenshots/desktop%20view%202.png)
+![Mobile View](screenshots/mobile.png)
+![Mobile View](screenshots/mobile%20view%202.png)
 
 7. **Todo App Demo** <br>
 
-![Todo App Demo](./screenshots/todo-demo.gif.gif)
+![Todo App Demo](screenshots/todo-demo.gif)

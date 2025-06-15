@@ -61,3 +61,7 @@ Note: DummyJSON is a read-only API. Actions like add/edit will simulate but not 
 7. **Todo App Demo** <br>
 
 ![Todo App Demo](screenshots/todo-demo.gif)
+
+8. **Build** <br>
+
+npm run build

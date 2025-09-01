@@ -5,10 +5,11 @@ import { fetchTodoById } from '../api/fetchapi';
 function TodoDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const todoId = Number(id);
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ['todo', id],
-    queryFn: () => fetchTodoById(id),
+    queryFn: () => fetchTodoById(todoId),
   });
 
   if (isLoading) return <div className="p-4">Loading...</div>;

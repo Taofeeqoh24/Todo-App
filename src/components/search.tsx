@@ -1,6 +1,9 @@
-import React from "react";
+interface SearchBarProps {
+  searchTerm: string;
+  setSearchTerm: (term: string) => void;
+}
 
-function SearchBar({searchTerm, setSearchTerm}) {
+function SearchBar({searchTerm, setSearchTerm}: SearchBarProps) {
     return (
         <div className="m-4">
             <p className="text-white text-sm">Search and filter your todos</p>

@@ -1,4 +1,9 @@
-function FilterControls({ filterStatus, setFilterStatus }) {
+interface FilterControlsProps {
+  filterStatus: string; 
+  setFilterStatus: (status: "all" | "completed" | "pending") => void;
+}
+
+function FilterControls({ filterStatus, setFilterStatus }: FilterControlsProps) {
   return (
     <div className="m-4 mt-[36px] flex gap-2 max-lg:mt-[-6px]">
       <button

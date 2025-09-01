@@ -1,22 +1,40 @@
 import { useQuery } from "@tanstack/react-query";
 import { fetchTodos } from "../api/fetchapi";
-import React, { useState } from "react";
+import  { useState } from "react";
 import { Link } from "react-router-dom";
 import SearchBar from "./search";
 import FilterControls from "./filter";
 import EditTodoModal from "./modals/edittodo";
 
-function TodoList({ todos, setTodos }) {
+interface Todo {
+  id: number;
+  todo: string;
+  completed?: boolean
+}
+
+interface TodoListProps {
+  todos: Todo[];
+  setTodos: (todos: Todo[]) => void;
+
+}
+
+interface TodosResponse {
+  data: Todo[];
+  total: number;
+}
+
+function TodoList({ todos, setTodos }: TodoListProps) {
   const [page, setPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
-  const [selectedTodo, setSelectedTodo] = useState(null);
+  const [selectedTodo, setSelectedTodo] = useState<Todo | null>(null);
   const [showEdit, setShowEdit] = useState(false);
 
-  const { data, isLoading, isError } = useQuery({
+  const { data, isLoading, isError } = useQuery<TodosResponse, Error>({
     queryKey: ["todos", page],
     queryFn: () => fetchTodos(page),
-    keepPreviousData: true,
+    placeholderData: (previousData) => previousData ?? { data: [], total: 0 },
+    // keepPreviousData: true
   });
 
   if (isLoading) return <div className="text-center p-4">Loading...</div>;
@@ -24,10 +42,12 @@ function TodoList({ todos, setTodos }) {
     return (
       <div className="text-center p-4 text-red-500">Error loading todos</div>
     );
+  if (!data) {
+    return <div className="text-center p-4">No data available.</div>;
+  }
 
   const totalPages = Math.ceil(data.total / 10);
-
-  const filteredTodos = data.data.filter((todo) => {
+  const filteredTodos = data?.data?.filter((todo) => {
     const matchesSearch = todo.todo
       .toLowerCase()
       .includes(searchTerm.toLowerCase());
@@ -39,14 +59,14 @@ function TodoList({ todos, setTodos }) {
         : !todo.completed;
 
     return matchesSearch && matchesFilter;
-  });
+  }) ?? [];
 
-  const handleOpenEdit = (todo) => {
+  const handleOpenEdit = (todo: Todo) => {
     setSelectedTodo(todo);
     setShowEdit(true);
   };
 
-  const handleEditSubmit = (updatedTodo) => {
+  const handleEditSubmit = (updatedTodo: Todo) => {
     if (!todos) return;
 
     const updatedList = todos.map((todo) =>
@@ -120,7 +140,7 @@ function TodoList({ todos, setTodos }) {
         >
           Previous
         </button>
-        <span className="bg-[#F3F0CA] px-3 py-1">{`${page} of 20`}</span>
+        <span className="bg-[#F3F0CA] px-3 py-1">{`${page} of ${totalPages}`}</span>
         <button
           className="px-3 text-sm py-1 bg-[#F3F0CA] rounded disabled:opacity-50"
           onClick={() => setPage((p) => Math.min(p + 1, totalPages))}

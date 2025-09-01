@@ -8,12 +8,4 @@ export default defineConfig({
   build: {
     outDir: 'dist'
   },
-  content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx,html}"],
-  theme: {
-    extend: {
-      screens: {
-        'max-lg': { max: '900px' },
-      },
-    },
-  },
 });

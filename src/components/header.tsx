@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import AddTodoModal from "./modals/addtodo";
 
 function Header() {
@@ -18,7 +18,7 @@ function Header() {
           <AddTodoModal
             isOpen={showModal}
             onClose={() => setShowModal(false)}
-            onSubmit={(newTodo) => console.log("New Todo:", newTodo)}
+            onSubmit={(newTodo: any) => console.log("New Todo:", newTodo)}
           />
           <button
             className="max-lg:w-18 bg-[#3876BF] text-sm text-[#F3F0CA] m-4 mt-[30px] p-2 rounded-lg"

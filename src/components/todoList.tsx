@@ -1,21 +1,18 @@
-import { useQuery } from "@tanstack/react-query";
-import { fetchTodos } from "../api/fetchapi";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { fetchTodos, toggleTodoStatus} from "../api/fetchapi";
 import  { useState } from "react";
 import { Link } from "react-router-dom";
 import SearchBar from "./search";
 import FilterControls from "./filter";
 import EditTodoModal from "./modals/edittodo";
+import DeleteTodoModal from "./modals/deletetodo";
 
 interface Todo {
   id: number;
-  todo: string;
-  completed?: boolean
-}
-
-interface TodoListProps {
-  todos: Todo[];
-  setTodos: (todos: Todo[]) => void;
-
+  title: string;
+  completed?: boolean;
+  user_id?: string;
+  created_at?: string;
 }
 
 interface TodosResponse {
@@ -23,24 +20,36 @@ interface TodosResponse {
   total: number;
 }
 
-function TodoList({ todos, setTodos }: TodoListProps) {
+function TodoList() {
   const [page, setPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
   const [selectedTodo, setSelectedTodo] = useState<Todo | null>(null);
   const [showEdit, setShowEdit] = useState(false);
+  
+  const queryClient = useQueryClient();
 
   const { data, isLoading, isError } = useQuery<TodosResponse, Error>({
     queryKey: ["todos", page],
     queryFn: () => fetchTodos(page),
     placeholderData: (previousData) => previousData ?? { data: [], total: 0 },
-    // keepPreviousData: true
   });
+
+  //toggle todo status mutation
+  const toggleMutation = useMutation({
+    mutationFn: ({ id, completed }: { id: number; completed: boolean }) => 
+      toggleTodoStatus(id, completed),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["todos"] });
+    },
+  })
 
   if (isLoading) return <div className="text-center p-4">Loading...</div>;
   if (isError)
     return (
-      <div className="text-center p-4 text-red-500">Error loading todos</div>
+      <div className=" h-screen m-4 rounded-4xl text-2xl p-8 bg-white text-red-500">
+        <p className="text-center">Error loading todos</p>
+      </div>
     );
   if (!data) {
     return <div className="text-center p-4">No data available.</div>;
@@ -48,7 +57,7 @@ function TodoList({ todos, setTodos }: TodoListProps) {
 
   const totalPages = Math.ceil(data.total / 10);
   const filteredTodos = data?.data?.filter((todo) => {
-    const matchesSearch = todo.todo
+    const matchesSearch = todo.title
       .toLowerCase()
       .includes(searchTerm.toLowerCase());
     const matchesFilter =
@@ -66,42 +75,51 @@ function TodoList({ todos, setTodos }: TodoListProps) {
     setShowEdit(true);
   };
 
-  const handleEditSubmit = (updatedTodo: Todo) => {
-    if (!todos) return;
-
-    const updatedList = todos.map((todo) =>
-      todo.id === updatedTodo.id ? updatedTodo : todo
-    );
-    setTodos(updatedList);
-  };
-
   return (
-    <div className=" border rounded-xl p-2 bg-[#192655] mt-[10px] m-4">
-      <div className="flex justify-between max-lg:flex-col">
+    <div className="rounded-4xl p-10 min-h-screen bg-slate-100 mt-[10px]">
+      <div className="flex justify-between mt-[-10px] max-lg:flex-col">
         <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
         <FilterControls
           filterStatus={filterStatus}
           setFilterStatus={setFilterStatus}
         />
       </div>
+      <p className="font-bold text-2xl ml-4">My Tasks</p>
       <ul className="space-y-2">
         {filteredTodos.map((todo) => (
           <li
             key={todo.id}
-            className="m-4 p-2 rounded-lg flex justify-between items-center bg-white hover:bg-[#F3F0CA] shadow"
+            className="m-4 p-2 rounded-lg flex justify-between items-center bg-purple-300 hover:bg-[#F3F0CA] hover:text-purple-800 hover:shadow-md hover:border"
           >
-            <Link to={`/todos/${todo.id}`} key={todo.id}>
+            <Link to={`/todos/${todo.id}`} >
               <div>
                 <span
-                  className={`text-[12px] p-2 ${
-                    todo.completed ? "text-[#3876BF]" : "text-yellow-600"
+                  className={`text-[12px] font-bold p-2 ${
+                    todo.completed ? "text-purple-800" : "text-yellow-600"
                   }`}
                 >
-                  <button className="bg-[#F3F0CA] rounded-lg p-1.5">
+                  <button className="bg-[#F3F0CA] shadow-md rounded-lg p-1.5">
                     {todo.completed ? "Completed" : "Pending"}
                   </button>
                 </span>
-                <span>{todo.todo}</span>
+                <span>{todo.title}</span>
+                <input
+                  type="checkbox"
+                  checked={todo.completed ?? false}
+                  onChange={() =>
+                    toggleMutation.mutate({
+                      id: todo.id,
+                      completed: !todo.completed,
+                    })
+                  }
+                  disabled={toggleMutation.isPending}
+                  className="ml-1 cursor-pointer"
+                />
+                <span
+                  className={`${
+                    todo.completed ? "line-through text-gray-500" : ""
+                  }`}
+                ></span>
               </div>
             </Link>
             <div>
@@ -112,37 +130,39 @@ function TodoList({ todos, setTodos }: TodoListProps) {
                     e.stopPropagation();
                     handleOpenEdit(todo);
                   }}
-                  className="text-sm border hover:underline rounded-lg m-2 p-1 w-14"
+                  className="text-sm border hover:shadow-md rounded-lg m-2 p-1 w-14"
                 >
                   Edit
                 </button>
-                <EditTodoModal
-                  isOpen={showEdit}
-                  onClose={() => setShowEdit(false)}
-                  todo={selectedTodo}
-                  onEdit={handleEditSubmit}
-                />
-                <button className="text-sm bg-red-600 text-white p-1 border rounded-lg w-14">
-                  Delete
-                </button>
+                
+                <DeleteTodoModal id={todo.id} />
               </span>
             </div>
+            {showEdit && (
+              <EditTodoModal
+                isOpen={showEdit}
+                onClose={() => setShowEdit(false)}
+                todo={selectedTodo}
+              />
+            )}
+
           </li>
+          
         ))}
       </ul>
 
       {/* Pagination Controls */}
-      <div className="flex justify-between m-4 mt-6 space-x-2">
+      <div className="flex justify-between m-4 mt-8 space-x-2">
         <button
-          className="text-sm px-3 py-1 bg-[#F3F0CA] rounded disabled:opacity-50"
+          className="text-sm px-3 py-1 bg-purple-800 shadow-md text-white rounded disabled:opacity-50"
           onClick={() => setPage((p) => Math.max(p - 1, 1))}
           disabled={page === 1}
         >
           Previous
         </button>
-        <span className="bg-[#F3F0CA] px-3 py-1">{`${page} of ${totalPages}`}</span>
+        <span className="bg-purple-800 shadow-md text-white px-3 py-1">{`${page} of ${totalPages}`}</span>
         <button
-          className="px-3 text-sm py-1 bg-[#F3F0CA] rounded disabled:opacity-50"
+          className="px-3 text-sm py-1 bg-purple-800 shadow-md text-white rounded disabled:opacity-50"
           onClick={() => setPage((p) => Math.min(p + 1, totalPages))}
           disabled={page === totalPages}
         >

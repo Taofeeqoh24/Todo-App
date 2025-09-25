@@ -1,3 +1,5 @@
+
+
 interface SearchBarProps {
   searchTerm: string;
   setSearchTerm: (term: string) => void;
@@ -6,14 +8,14 @@ interface SearchBarProps {
 function SearchBar({searchTerm, setSearchTerm}: SearchBarProps) {
     return (
         <div className="m-4">
-            <p className="text-white text-sm">Search and filter your todos</p>
             <input 
-            className=" max-lg:w-80 p-2 w-150 border rounded-xl bg-[#F3F0CA]"
+            className=" max-lg:w-80 p-3 w-150 rounded-xl bg-purple-300"
             type="text"
-            placeholder="Search todos...."
+            placeholder="Search for tasks...."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
         />
+        
         </div>
         
     )

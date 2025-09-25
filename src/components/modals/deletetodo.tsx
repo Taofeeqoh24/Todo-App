@@ -26,7 +26,7 @@ function DeleteTodoModal({ id }: DeleteTodoProps) {
   return (
     <button
       onClick={handleDelete}
-      className="text-sm bg-red-600 text-white p-1 border rounded-lg w-14 hover:bg-red-700"
+      className="text-[8px] lg:text-sm bg-red-600 text-white p-1 border rounded-lg lg:w-14 w-8 hover:bg-red-700"
       disabled={mutation.isPending}
     >
         {mutation.isPending ? "..." : "Delete"}

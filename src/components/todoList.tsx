@@ -76,7 +76,7 @@ function TodoList() {
   };
 
   return (
-    <div className="rounded-4xl p-10 min-h-screen bg-slate-100 mt-[10px]">
+    <div className="rounded-4xl p-4 lg:p-10 min-h-screen bg-slate-200 mt-[10px]">
       <div className="flex justify-between mt-[-10px] max-lg:flex-col">
         <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
         <FilterControls
@@ -94,7 +94,7 @@ function TodoList() {
             <Link to={`/todos/${todo.id}`} >
               <div>
                 <span
-                  className={`text-[12px] font-bold p-2 ${
+                  className={`text-[10px] lg:text-[12px] font-bold p-1 lg:p-2 ${
                     todo.completed ? "text-purple-800" : "text-yellow-600"
                   }`}
                 >
@@ -102,7 +102,7 @@ function TodoList() {
                     {todo.completed ? "Completed" : "Pending"}
                   </button>
                 </span>
-                <span>{todo.title}</span>
+                <span className="text-[12px] lg:text-[16px]">{todo.title}</span>
                 <input
                   type="checkbox"
                   checked={todo.completed ?? false}
@@ -122,21 +122,19 @@ function TodoList() {
                 ></span>
               </div>
             </Link>
-            <div>
-              <span className="max-lg:flex flex-col">
+            <div className="border-gray-50 rounded-sm shadow-xl text-nowrap ">
                 <button
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
                     handleOpenEdit(todo);
                   }}
-                  className="text-sm border hover:shadow-md rounded-lg m-2 p-1 w-14"
+                  className="text-[10px] lg:text-sm border hover:shadow-md rounded-lg m-2 p-1 lg:w-14 w-8"
                 >
                   Edit
                 </button>
                 
                 <DeleteTodoModal id={todo.id} />
-              </span>
             </div>
             {showEdit && (
               <EditTodoModal
